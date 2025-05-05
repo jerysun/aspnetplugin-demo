@@ -8,7 +8,7 @@ namespace EndpointPDK;
 public abstract class PluginMiddleware : IMiddleware
 {
     protected abstract PluginParams GetPluginParams();
-    
+
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         var alcRef = await Process(context, next);
@@ -51,16 +51,17 @@ public abstract class PluginMiddleware : IMiddleware
                 var endpoint = Activator.CreateInstance(endpointType) as IPluginEndpoint;
                 await endpoint.ExecuteAsync(context);
             }
-            await next.Invoke(context);
+
         }
         finally
         {
             loadContext.Unload();
+            await next.Invoke(context);
         }
-        
+
         return new WeakReference(loadContext);
     }
-    
+
     protected virtual string GetAssemblyFullPath(string relativePath)
     {
         // Navigate up to the solution root
